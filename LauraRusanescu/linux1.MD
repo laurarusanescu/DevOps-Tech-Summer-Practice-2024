@@ -15,3 +15,5 @@ _______dir____________
 Now we used some arguments(for rmdir):   
 -r means go recursively through directories (and treat everything as file)  
 -f - force. Another words, do not ask, assume the user knows what he is doing.  
+
+
