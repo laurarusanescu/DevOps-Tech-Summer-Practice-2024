@@ -222,7 +222,49 @@ Pentru a sterge si fisierele asociate user-ului si home este bine sa folosim si 
 **"userdel -rf testuser3"**
 
 Verificarea cu comenzile:
-* ** **
+* **grep testuser /etc/passwd**
+* **ls -l /home**
+
+5. **QUIZ**
+
+  * Fisierul in care informatia despre useri este stocata?
+
+Raspuns: /etc/passwd
+
+*  I want to learn what is the UID and GId of the user mysterioususer
+  
+  Raspuns: id mysterioususer
+
+  * GID is:
+
+Raspuns: Group Identifier
+
+*"!" in/etc/shadow means:
+
+Raspuns: Password is not set
+
+* adduser is a:
+
+Raspuns: Perl script
+
+*  With useradd I want to provide a shell. Provide the argument:  -s
+  
+  * The command for password change is:
+  
+  Raspuns: passwd
+
+  *The proper arguments for usermod when I want to add another secondary group is:
+
+Raspuns:  usermod testuser3 -aG testuser1
+
+*Removing an user with all his files:
+
+Raspuns: userdel -rf user
+
+* Normal users are created with UID higher than:
+  Raspuns: 1000
+
+
 
 
 
