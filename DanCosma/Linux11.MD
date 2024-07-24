@@ -183,6 +183,47 @@ Corectarea erorii:
 *  **grep testuser3 /etc/group**
 Acum functioneaza cum trebuie.
 
+Cu argumentele de la comanda **usermod -d** putem creea un director home.
+
+"usermod testuser3 -d /home/anotherdir"
+
+Pentru a creea si a vizualiza directorul home intr-un mod corect trebuie sa mai adaugam inca un argument:
+
+**"usermod testuser3 -d /home/newdir -m"**
+
+Pentru verificare folosim comenzile:
+
+"grep testuser3 /etc/passwd"
+
+"ls -l /home"
+
+"ls -l /home/newdir"
+
+
+### MODIFICAREA SHELL-ULUI
+
+* **usermod testuser3 -s /bin/sh**
+* **grep testuser3 /etc/passwd**
+
+
+### STERGEREA UNUI USER
+
+Command: **"userdel testuser1 "**
+
+User-ul testuser1 a fost eliminat dar, 
+grupul din care facea parte inca exista.
+
+In order to remove secondary groups, we can run
+
+**usermod testuser3 -G ""** -In alte cuvinte am setat grupul existent ca si unul gol.
+
+Pentru a sterge si fisierele asociate user-ului si home este bine sa folosim si aceasta comanda:
+
+**"userdel -rf testuser3"**
+
+Verificarea cu comenzile:
+* ** **
+
 
 
 
