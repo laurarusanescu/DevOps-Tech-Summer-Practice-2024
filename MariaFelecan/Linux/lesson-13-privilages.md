@@ -39,6 +39,8 @@
 
     *to configure what editor to use: update-alternatives --config editor
 
+    visudo
+
     user pos1=(pos2:pos3) pos4
     %group pos1=(pos2:pos3) pos4
 
