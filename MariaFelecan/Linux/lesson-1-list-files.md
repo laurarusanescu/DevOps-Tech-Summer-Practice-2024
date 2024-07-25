@@ -19,6 +19,8 @@ permissions, nr hard links, owner, group, size, date time, file name
 
 -> A = almost all files, except . & ..
 
+-> i = print the index number of each file ( --inode)
+
 -> t = sorts files by time, new files first (ls -lt)
     by adding u(ls  -ltu) = printing the modification time
     by adding c (ls -ltc) = sort by metadata change
