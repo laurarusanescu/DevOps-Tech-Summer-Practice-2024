@@ -1,19 +1,23 @@
-____ls -l____________
+## `ls -l` Command in Linux
 
-Linux has differente timestamps, three, to be exact.
- -- atime - the last time when file was accessed  
- -- mtime - last modification time. By modification we mean change in the file content.  
- -- ctime - last metadata modification time. We mean here - permissions change, location of the file, etc.  
+Linux has three different timestamps for files:
 
- -s: Shows allocated space.  
--S: Sorts by size.  
--h: Human-readable sizes (powers of 1024).  
---si: Human-readable sizes (powers of 1000, less common).  
+- **atime**: The last time the file was accessed.
+- **mtime**: The last modification time. This refers to changes in the file content.
+- **ctime**: The last metadata modification time. This includes changes in permissions, location of the file, etc.
 
-_______dir____________
+### Common Options for `ls` Command
 
-Now we used some arguments(for rmdir):   
--r means go recursively through directories (and treat everything as file)  
--f - force. Another words, do not ask, assume the user knows what he is doing.  
+- `-s`: Shows allocated space.
+- `-S`: Sorts by size.
+- `-h`: Human-readable sizes (powers of 1024).
+- `--si`: Human-readable sizes (powers of 1000, less common).
 
+---
 
+## `dir` Command in Linux
+
+When using `rmdir`, here are some commonly used arguments:
+
+- `-r`: Recursively go through directories (and treat everything as a file).
+- `-f`: Force the action. In other words, do not ask for confirmation and assume the user knows what they are doing.

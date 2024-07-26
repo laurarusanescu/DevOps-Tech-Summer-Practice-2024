@@ -1,32 +1,23 @@
-______Work with Users________
-UID 0 is reserved for root.  
-1-99 are reserved for predefined accounts (like games, mail, www-data, sys, bin and more)  
-100-999 reserved for system and administrative accounts.  
-1000+ are reserved for users  
+## Work with Users
 
-GID 0 is reserved for root.  
-1-99 are reserved for system and application use.  
-100+ are for users.  
+### UID Ranges
+- **UID 0**: Reserved for root.
+- **1-99**: Reserved for predefined accounts (e.g., games, mail, www-data, sys, bin).
+- **100-999**: Reserved for system and administrative accounts.
+- **1000+**: Reserved for users.
 
-~~~clear && cat /etc/passwd  
-The structure of this file is as follows:  
-username:password:UID:GID:description:homedir:shell  
-username - obvious, it is the name of the user  
-password - password. Many years ago this was the place where password actually was stored. But for security reasons it chaned and now passwords are available in different form, somewhere else. We will go there later. x in this field means that password is encrypted and stored in the other file.  
-UID - unique User IDentifier.  
-GID - unique Group IDentifier.  
-description - this field can contain many information. The real first and last name. Address. Phone number. Role in the organization. You name it.  
-homedir - the location named as home directory. This is the "home" of the user, where he logs and stores his data.  
-shell - simply speaking, the shell is the program which takes the commands sent by user, interprets it, and return the answer  
+### GID Ranges
+- **GID 0**: Reserved for root.
+- **1-99**: Reserved for system and application use.
+- **100+**: Reserved for users.
 
-______Useradd______
-We can add to the comands useradd os adduser the following arguments:  
--d - create home directory in specified location, if we want to change  
--m - create the home directory  
--p - password  
--s - provide shell  
--c - comments, or description of the account 
+### `/etc/passwd` File
 
-Change password:  
-grep testuser /etc/shadow  
-passwd testuser  
+To view the `/etc/passwd` file, use:
+```sh
+clear && cat /etc/passwd
+
+
+Change the user: su - newuser
+come back to main user: exit
+
