@@ -189,3 +189,168 @@ Let's check
 git status
 
 You succesfully commited multiple files!
+
+# 4. Removing a file from commit
+
+
+### Removing a file from stage
+
+A single file:
+
+*  git -rm --cached testfile-01
+* git status
+
+Removing multiple/all files from stage:
+
+* git rm --cached -r.
+* git status
+
+"." -Folosit sa spunem: TOT DE AICI
+
+'-r' - Inseamna recursiv
+
+### Revenirea la state-ul initial
+
+
+* git log
+* git status
+
+Putem sa vedem ca au aparut niste modificari in fisiere dupa primul commit.
+
+Mai intai verificam ce se afla in fisier:
+
+* cat testfile-01
+* git checkout testfile-01
+* cat testfile-01
+* git status
+
+Am reusit sa resetam cu succes fisierul in starea sa din comit ul initial.
+
+We succesfully reset the file to the state from previous commit, using git checkout. In this way we do the checkout of the last indexed state of this file on current branch.
+
+In similar way like in some scenarios before, we can remove all changes in one short command.
+
+* git checkout .
+* git status
+
+### Alta modalitate de a ne intoarce
+
+Reset the current HEAD to the selected state
+
+**git reset** mutaa pointer-ul curent si branch refs in starea specifica.  
+
+**Reset** are 3 nidakitati principale de operare, dar noi ne ocupam de 2 dintre ele.
+
+1. **--soft**
+
+git log shows that we have many changes done. We have one commit for each file.
+
+**git log**
+
+Let't reset the HEAD to the state before commiting the last file.
+
+But before, let's see what is inside the files
+
+* cat testfile-04
+
+* cat testfile-02
+
+* git reset --soft HEAD~1
+
+With --soft parameter we came back to the previous HEAD of the repository, but all changes which we commited are unchanged.
+
+2. **--hard**
+
+O instructiunwe mult mai puternica
+
+**git reset --hard HEAD~2**
+
+Verificam efectele: 
+
+* git status
+
+* git log
+
+* cat testfile-04
+
+* cat testfile-02 
+
+We came back two more commits (~HEAD~2) and we said, this time we want to not only move back, but also we want to remove all changes which were done.
+
+
+# 5. VISUAL COMMIT
+
+Test editor to create a message for commit
+
+Schimbam modalitatea de a adauga mesaje la commit-uri(-m):
+
+* cd test 
+* git commit testfile-01  This was the default editor where we can add stuff(add, commit).
+
+### Default Editor
+
+verificam mai intai configuratia:
+
+git config --global --list | grep editor
+
+What we've done? We asked git to show us the whole configuration in global space. We can use system and local too. Local obviously means the configuration of this specific repo. Also, we grep the output to find information about editor only.
+
+Changing basic editor to VI.
+
+git config --global core.editor vi
+
+# 6. REVERT CHANGES
+
+Git reset functoneaza pentru revenirea la primul commit, dar are un dezavantaj, el fuctionand doar pentru noi pt ca mutaam HEAD in repo ul nostru local.
+
+The best way, best practice to revert, or more "revert" changes is to create new commit from previous one. To avoid situation that HEAD will moved somewhere where it shouldn't be.
+
+## GIT REVERT
+
+We have our repo prepared, two files created and two commits done. Let's see how it looks.
+
+cd test
+
+git status
+
+git log
+
+Let's move ourselves back by one commit.
+
+git revert --no-edit HEAD
+
+We succesfully moved back by creating new commit.
+
+git log
+
+By using --no-edit we informed git that we don't want to pass any message and we ask to use default. We will see what git did for us, using git log soon.
+
+So, now we are back one commit from two already done and... we have three commits. Strange? Please, try to think about the logic behind. We do not want to create problems for other users which can work on the same repo with us. So, we 'go back by going forward'. We keep the history and logic process of work, however we bring back the part of the work from kind of 'backup'.
+
+Our current status is like this: we are between two commits, for file-01 and file-02.
+
+Let's have some fun, and revert our revert. Shall we?
+
+git revert --no-edit HEAD
+
+Before you run next commad, please try to imagine what happened in our git :)
+
+git log
+
+Of course, we can revert more changes than the last commit.
+
+We can revert multiple commits by
+
+git revert --edit HEAD~3
+
+This time we reverted to the beginning of our history. And we forced git to give us possibility to add message (by the way, --edit is default behavior).
+
+So, to make sure we all are on the ame page. HEAD is the current 'place' where we are. For now, let's think about it as combination of current branch and current place in git history.
+
+So, with HEAD~3 we said: I want to move back from HEAD by 3 commits . But that's not all. This place becomes our new HEAD .
+
+We can revert to specific commit hash too. more about hashes in git log scenario.
+
+Important Very often you can experience problems when revert more than one commit and the same file is involed. We will talk about troubleshooting in future lesson.
+
+
