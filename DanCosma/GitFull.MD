@@ -554,3 +554,198 @@ clear && git log -1 --grep="JIRA"
 clear && git log -5 --grep="commit" --oneline
 
 Please notice revert message, without commit. hm... Please, check why we see it?
+
+# 9. HOW TO FIX CONFLICTS
+
+We will create a conflict in unusual but not uncommon way. In the background the system did some work, commits, etc. Now our goal is to go back two commits with revert. Unfortunately, our last two commits are about the same file.
+
+Let's go to our repo cd test
+
+How the history looks now?
+
+git log --oneline
+
+And for the curiosity, what is in testfile-02 ?
+
+cat testfile-02
+
+Let's try to do revert.
+
+clear && git revert --no-edit HEAD~1
+
+Ouch...
+
+CONFLICT (content): Merge conflict in testfile-02
+error: could not revert XXXXXXX... my new feature
+
+Let's see what we have in file
+
+cat testfile-02
+
+Thank you git. You were supposed to destroy mess in the universe, not create one!
+
+But wait... Let's look closely what happened.
+
+How the revert works? It removes changes from selected commit, not from all changes!. Now things should be more clear, right?
+
+    change1 commit
+    change2 commit
+    revert to change1
+
+That means, we have change2 unattended!
+
+<<<<<<< HEAD
+This is my important change
+=======
+>>>>>>> parent of XXXX... my new feature
+
+Here is our conflict.
+
+<<<<<< - this is what we have in current branch
+
+====== = center of our conflict
+
+>>>>>> - this wants to be merged / added. In our case this part is empty (as it should be).
+
+How to solve it? The simplest will be... talk with developers who did the changes which we are reverting, first. Find common solution. And then use vim and make appropriate changes.
+
+Normally you should use vim , and remove lines from 2 to 5 . But here we do:
+
+sed -i '2,5d' testfile-02
+
+We removed mentioned lines. Now the file looks like we want.
+
+cat testfile-02
+
+Please notice, this example is extremely simple :)
+
+The last thing to do is to add and commit the file again. Please look carefully on comments after
+
+clear && git status
+
+Ok, let's do the work.
+
+git add testfile-02
+
+git status
+
+clear && git commit testfile-02 -m "fixed conflict"
+
+git status 
+
+Tools to help us fix conflicts:
+
+
+    git-mergetool (part of the git package, you need to specify proper tool which will be invoked)
+    Plugins to your beloved editor
+    Kdiff3
+    Meld
+
+
+# 11. HOW TO IGNORE CONTENT
+
+## Holy .gitignore
+
+Files that should be ignored:
+
+
+    artifacts
+    tarballs
+    temp files
+    binaries
+    additional libraries (needed for compilation, for example)
+    other
+
+
+Ne da posibilitatea sa controlam ce va fi sincronizat cu remote repo si ce nu va fi
+
+Acest lucru se realzeazacu ajutorul fisierului .gitignore
+
+Creating the .gitignore file.
+
+touch .gitignore
+
+echo neveringit >> .gitignore
+
+echo seconddirectory >> .gitignore
+
+cat .gitignore 
+
+Let'ss check the status again
+
+git status
+
+Ok, we are ready to run
+
+git add .
+
+and
+
+git status
+
+And commit
+
+git commit -a -m "first commit"
+
+And now we can run git status to see what is changed.
+
+Yes, we can confirm, what shouldn't be in remote isn't on the list.
+
+### More Configs
+
+More configs
+
+Ok, so now we are able to ignore some specified files.
+
+Now we want the file with the same name neveringit from firstdirectory to be sent to remote. Maybe it is only an example how it should work. Some instruction for other people for example.
+
+Let's create additional file then.
+
+touch firstdirectory/neveringit
+
+And its content
+
+echo "this file has to go to git!" >> firstdirectory/neveringit
+
+Ok. do
+
+git status
+
+git add . and then again
+
+git status
+
+Well. It is not what we want.
+
+Ok, first, we know, the filename we used itself works for all directories in repo. Git has strict rules how these 'masks' work, please check in documentation if you want to have it more complicated.
+
+The good practice is to be as most specific as possible. So, what we need, really is:
+
+**/neveringit
+!firstdirectory/neveringit
+
+First line says explicitly - all files anywhere in the structure (and now it is clear, readable and visible
+
+In second line the exlamation mark negates the pattern. Another words, we negate the deny and allow this file to be sent to remote.
+
+Ok, let's check.
+
+sed -i 's/neveringit/**\/neveringit/g' .gitignore
+
+echo '!firstdirectory/neveringit' >> .gitignore
+
+And check
+
+cat .gitignore
+
+Ok, to be sure, let's do an experiment.
+
+mkdir thirddirectory && echo "gotogit" > thirddirectory/togit && echo "not for git!" > thirddirectory/neveringit
+
+After a
+
+git add . let's run
+
+git status
+
+Yep, we can confirm, neveringit file is never added to commit, except only one situation: when we forced it.
