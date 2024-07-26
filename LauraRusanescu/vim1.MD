@@ -1,69 +1,81 @@
+## Vim Cheat Sheet
 
-to exit: :q! to trash all changes
-         :wq to save the changes
+### Exiting
+:q!     " Exit without saving changes
+:wq     " Save changes and exit
 
-insert:  i - type inserted text
-         a - insert after the cursor
-         A - type appended text
+### Insert Mode
+i       " Insert before the cursor
+a       " Insert after the cursor
+A       " Append text at the end of the line
 
-deleting: dw - del from the cursor up to the next word type
-          de - del from the cursor up to the end of the word type
-          d$ - del from the cursor to the end of a line type
-          dd - del a whole line type
-          R - replace more than one char
+### Deleting
+dw      " Delete from the cursor up to the next word
+de      " Delete from the cursor up to the end of the word
+d$      " Delete from the cursor to the end of the line
+dd      " Delete the whole line
+R       " Replace more than one character
 
-2w - to repeat a motion prepend it with a number
+### Repeating
+[number]w    " Repeat a motion [number] times
 
-change comand:
-   opreator [number] motion
-operator - is what to do (ex. d for delete)
-[number] - is an optional count to repeat the motion
-motion - moves over the next to operate on, such as w(word), e(end of woed), $(end of the line), ect
+### Change Command
+operator [number] motion    " Operator is what to do (e.g., d for delete)
+                            " [number] is an optional count to repeat the motion
+                            " Motion moves over the text to operate on (e.g., w for word, e for end of word, $ for end of line)
 
-0 - to move to the start of the line use a zero
+### Moving to Start of Line
+0       " Move to the start of the line
 
-undo:
-u - to undo previous actions
-U - to undo all the changes on a line
+### Undo
+u       " Undo previous action
+U       " Undo all changes on the line
 
-p - to put back text that jas just been deleted
-r -to replace the char under the cursor and then the char tha you want to have instead
-c$ - to change untill the end of the line
+### Put Back Deleted Text
+p       " Put back text that has just been deleted
 
-change:
-    c [number] monion
+### Replace Character
+r       " Replace the character under the cursor
 
-CTRL-G - displays your location in the file and the file status
-     G - moves to the end of the file
-   numn G - moves to the line number
-    gg - moves to the first line
+### Change Until End of Line
+c$      " Change until the end of the line
 
-search: 
-/ folowed by a phrase searches forward for the phase
-? followed by a phrase searches backward for the phase 
+### Location and Navigation
+CTRL-G  " Display location in the file and file status
+G       " Move to the end of the file
+[number]G  " Move to the specified line number
+gg      " Move to the first line
 
-% - while the cursor is on a (, ), {, }, [, ] goes to its match
+### Search
+/phrase " Search forward for the phrase
+?phrase " Search backward for the phrase
 
-substitute:
-:s/old/new - subst new from the first old in a line type
-:s/old/new/g - subst new for all 'old's on a line type
-:#,#s/old/new/g - subst phases between two line #'s type
-:%s/old/new/g - subst all occurences in the file type
-:%s/old/new/gc - ask for confirmation each time add 'c'
+### Matching Parentheses
+%       " Move to the matching (, ), {, }, [, or ]
 
-:!command - executes an external command
-:w FILENAME - writes the current vim file to disk with name FILENAME
-v motion :w FILENAME - saves visually selected lines in file FILENAME
-:r FILENAME - retrives disk file FILENAME and puts it below he cursor position
-:r !dir - reads the output of the dir command and puts it below the cursor position
+### Substitute
+:s/old/new        " Substitute new for the first old in a line
+:s/old/new/g      " Substitute new for all old in a line
+:#,#s/old/new/g   " Substitute old with new between two line numbers
+:%s/old/new/g     " Substitute all occurrences in the file
+:%s/old/new/gc    " Substitute all occurrences with confirmation
 
-copy and paste:
-y - copy
-p - paste
+### External Commands
+:!command        " Execute an external command
+:w FILENAME      " Write the current Vim file to disk with name FILENAME
+:v motion :w FILENAME " Save visually selected lines in file FILENAME
+:r FILENAME      " Retrieve disk file FILENAME and put it below the cursor position
+:r !command      " Read the output of the command and put it below the cursor position
 
+### Copy and Paste
+y       " Copy (yank)
+p       " Paste
 
+### Open Line
+o       " Open a line below the cursor and start insert mode
+O       " Open a line above the cursor and start insert mode
 
-
-
-
-
+### Help
+:help <F1> or <HELP>   " Open a help window
+:help cmd              " Find help on cmd
+CTRL-W                 " Jump to another window
