@@ -354,3 +354,203 @@ We can revert to specific commit hash too. more about hashes in git log scenario
 Important Very often you can experience problems when revert more than one commit and the same file is involed. We will talk about troubleshooting in future lesson.
 
 
+# 7. Checking Differences
+
+Compararea unor schimbari cu comituri deja executate.
+
+Another command, **git diff**, allows to check the differences between HEAD and current working directory. Another words, what was changed during our recent work.
+
+#### git diff
+
+As usual, this command checks HEAD by default. However, we can modify it.
+
+clear && git diff HEAD~1
+
+As you can expect, when we go deeper into past, more information is printed. If we want to avoid the mess, we can check diff for one file.
+
+clear && git diff HEAD~1 testfile-01
+
+Now we see information about testfile-02 only in comparision of current working directory and one commit before HEAD.
+
+#### Diferente in stage
+
+ git diff shows differences between commit and working directory.
+
+Testam creand un nou fisier cu comanda:
+
+touch testfile-03 && echo "testfile-03" > testfile-03 && git add testfile-03
+
+Asfel am creat ceva nou si a fost adagat in staging, dar nu apare inca nici o diferenta daca vrem sa verificam cu git status.
+
+Pentru a vedea diferenta intre staged work si HEAD(git status) trebuie sa spunem explicit:
+
+#### git diff --staged
+
+#### GIT SHOW
+
+alta comanda utila este **git show**. Aceasta ne ofera informatie similara ca si **git log**.
+
+git show functioneaza implicit impotriva HEAD. Poate fi folosit pentru orice fisier sau comit.
+
+# 8. INFORMATII DETALIATE DESPRE COMMIT URILE PRECEDENTE.
+
+Revenim la sfantul git log si s-ar putea sa folosim version control cu el.
+
+## Formatarea informatiei din git log
+
+
+Remember to quit git log with q. If logs are longer than your screen, it always goes to interactive mode.
+
+## Best for programmatic access
+
+Sometimes you want to check commits through scripts. In this case git log itself is unhandy.
+
+#### cd test && clear && git log --oneline
+
+--oneline shows only most important info about commits. You have only hash and commit message.
+
+But hey! We can do this for all commits!
+
+#### clear && git log -p 
+
+Daca vrem sa vedem cat work a fost facut la un commit folosim comanda:
+
+* clear && git log --stat
+
+Now we can clearly see how many lines were added or removed in each commit.
+
+Maybe you wish to see the information sorted by author of the commits?
+
+**clear && git shortlog** is the answer!
+
+## Cleaner Output
+
+Daca vrem sa vizualizam lucrul cu branch-uri:
+
+#### git log --graph
+
+Git ne da posibilitatea de a conecta mai multi parametri cu altii intr-o singura comanda:
+
+### clear && git log --oneline --graph
+Cleaner and better option.
+
+## Formatarea
+
+Pentru a avea un output mult mai colorat folosim comanda parametrulul: **--decorate**.
+
+Ex: 
+* %blue
+* %Creset
+* %H -commit hash. de preferabil shorthash cu %h
+* &an who commited changes
+* %ad -date of commit.Pentru scripturi de poate folosi Unix timestamp -%at.
+* %s commit message
+
+Cum se formateaza si se folosesc ele? Cu:
+
+git log --pretty
+
+Ex: 
+clear && git log --graph --pretty="%C(yellow) Hash: %h %C(blue)Date: %ad %C(red) Message: %s " --date=human
+
+Please, go through the command and understand all arguments.
+
+Let's test some different ideas. Try to guess what the command output will be, before you execute them!
+
+clear && git log --graph --pretty="%ad" --date=short
+
+For better clarity you can add format to parameter
+
+git log --graph --pretty=format:"%ad" --date=short
+
+It will do the same. Here are another examples.
+
+clear && git log --graph --pretty="%ad"
+
+clear && git log --graph --pretty="%at"
+
+clear && git log --graph --pretty="%as"
+
+clear && git log --graph --pretty="%C(bold blue)%h"
+
+clear && git log --graph --pretty="%C(bold blue)%h %Cred%s %C(Yellow)by %an"
+
+Another example found on the Internet
+
+clear && git log --graph --pretty=format:"%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit
+
+But... Will you enter this command every single time? No? What you need is on the next page 
+
+## Git config si Aliases
+
+Previously, we used very long command. Let's create an alias for it. We need to add it to the git config file. Of course logical will be to add it to global table.
+
+#### git config --global alias.lg 'log --color --graph --pretty="%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" --abbrev-commit'
+
+We instruct git that we want to change configuration (config), on global table (--global) and we configure alias called lg (alias.lg). The alias itself is inside the '' section.
+
+Now you can execute your alias
+
+**clear && git lg** 
+
+##Querying
+
+Adica -Searching through git log.
+
+clear && git log --author="John Doe" will show all commits done by specific author.
+
+clear && git log --author="John Doe\|Joe Smith" - with this regex we asked for all commits authored by these two people.
+
+When we work with tools like Jira, we have amazing identifier given by the tool - Jira ticket number. So our commit message should look similar to:
+
+JIRA-1234 my commit message
+
+#### clear && git log --grep="JIRA-1234"
+
+Another way is to look at logs for specific file.
+
+clear && git log -- testfile-01
+
+clear && git log -- testfile-02 branchfile-01
+
+Please notice the --. This way we inform git that we have files, not branches in mind.
+
+We can compare two branches
+
+clear && git log master..second-branch
+
+clear && git log second-branch..master
+
+Please, notice the differences between those two!!
+
+Previously we tried to look for "merge" messages. There is better way.
+
+clear && git log --merges
+
+So, how to exclude merge commits:
+
+clear && git log --no-merges
+
+In our example it will not work very well, but we can search using dates
+
+clear && git log --after=2021-4-21
+
+clear && git log --before=2021-4-21
+
+clear && git log --before 2021-4-30 --after=2021-4-1
+
+clear && git log --after=yesterday
+
+on the end, the easiest thing. We can limit number of returned commits
+
+clear && git log -1
+
+clear && git log -3
+
+And also we can mix search functionalitites
+
+clear && git log -1 --grep="JIRA"
+
+clear && git log -5 --grep="commit" --oneline
+
+Please notice revert message, without commit. hm... Please, check why we see it?
