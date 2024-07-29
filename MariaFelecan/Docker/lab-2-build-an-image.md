@@ -8,3 +8,4 @@ to remove a container : docker rm name
 we can ping an ip address with pinger
 we can tag a container as pinger
 
+docker build -t cmd-echo .  - cmd-echo is the name of the image
