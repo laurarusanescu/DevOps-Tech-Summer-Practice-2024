@@ -423,4 +423,146 @@ Export binaries:
 
 docker build --output=/root/app --target=binaries .
 
+# NEtwork Drivers
 
+Firstly, initiate container named app-1 :
+
+    mount /root/app-1 directory on the host to the /usr/share/nginx/html directory within the container
+    utilize the nginx:alpine image
+
+Secondly, initiate container named app-2 :
+
+    mount /root/app-2 directory on the host to the /usr/share/nginx/html directory within the container
+    utilize the nginx:alpine image
+
+Make sure that containers are attached to the default bridge network.
+
+Send get request from app-1 container to app-2 container:
+
+    by using app-2 hostname
+    by using app-2 ip address
+
+Use "docker network ls" to list current networks.
+
+If you do not specify any --network flags, the containers connect to the default bridge network.
+
+Documentation - https://docs.docker.com/network/network-tutorial-standalone/#use-the-default-bridge-network.
+
+Tip 1: Use curl -sS command to send get request.
+
+Tip 2:
+he IP addresses of containers within the network can be retrieved by executing the command:
+"docker network inspect bridge | jq .[0].Containers".
+
+TIP 3: 
+You should expect an error message "Could not resolve host: app-1" 
+upon making request by using ip address.
+
+Solution:
+
+Initiate app-1 and app-2 containers:
+
+docker run -d -v /root/app-1:/usr/share/nginx/html --name app-1 nginx:alpine \
+&& \
+docker run -d -v /root/app-2:/usr/share/nginx/html --name app-2 nginx:alpine
+
+
+List information about the network:
+
+docker network inspect bridge
+
+
+Send get request from app-1 to app-2 :
+
+docker exec app-1 sh -c 'curl -sS app-2'
+
+
+Send get request from app-1 to app-2 using its IP address:
+
+docker exec app-1 sh -c 'curl -sS 172.17.0.3'
+
+## Running containers in bridge network
+
+Create bridge network bridge-network.
+
+Detach app-1 and app-2 containers from default bridge network and attach to the newly created bridge-network .
+
+Send get request from app-1 container to app-2 container:
+
+    by using app-2 hostname
+    by using app-2 ip address
+
+Solution:
+
+Create network bridge-network : (--driver bridge is not nessecary here, as it is a default behaviour)
+
+docker network create --driver bridge bridge-network
+
+
+Disconnect app-1 and app-2 from the default bridge network:
+
+docker network disconnect bridge app-1 \
+&& \
+docker network disconnect bridge app-2
+
+
+Connect app-1 and app-2 containers to the bridge-network network:
+
+docker network connect bridge-network app-1 \
+&& \
+docker network connect bridge-network app-2
+
+
+List information about the network:
+
+docker network inspect bridge-network
+
+
+Send get request from app-1 to app-2 :
+
+docker exec app-1 sh -c 'curl -sS app-2'
+
+
+Send get request from app-1 to app-2 using its IP address:
+
+docker exec app-1 sh -c 'curl -sS 172.18.0.3'
+
+## Run containers in host network
+
+Remove app-1 container.
+
+Initiate new container app-1:
+
+* mount /root/app-1 directory on the host to the /usr/share/nginx/html directory within the container
+* attach container to the predefined host network
+* utilize the nginx:alpine image
+
+MAke a request to localhost:80.
+
+Tip 1: 
+Use --network flag to attach container to the host network.
+
+Attaching a running container to the host network isn't feasible, 
+so make sure to configure it when launching the container.
+
+Solution:
+
+Remove container app-1 :
+
+docker rm -f app-1
+
+OR
+
+docker stop app-1 \
+&& \
+docker rm app-1
+
+
+Initiate app-1 container:
+
+docker run -d -v /root/app-1:/usr/share/nginx/html --name app-1 --network host nginx:alpine
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
