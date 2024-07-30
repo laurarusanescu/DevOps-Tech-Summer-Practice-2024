@@ -566,3 +566,564 @@ docker run -d -v /root/app-1:/usr/share/nginx/html --name app-1 --network host n
 Send get request to localhost:80 :
 
 curl localhost:80
+
+# POST-FORWARDING IN DOCKER
+
+AKA Publishing ports in docker.
+
+## Publish port
+
+By default, when you create or run a container using docker create or docker run, containers on bridge networks don't expose any ports to the outside world. Use the --publish or -p flag to make a port available to services outside the bridge network. This creates a firewall rule in the host, mapping a container port to a port on the Docker host to the outside world.
+
+**IMPORTANT!:**
+
+**Publishing container ports is insecure by default. Meaning, when you publish a container's ports it becomes available not only to the Docker host, but to the outside world as well.**
+
+Solution:
+
+Initiate app-1 container:
+
+docker run -d -v /root/app-1:/usr/share/nginx/html -p 80:80 --name app-1 nginx:alpine
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+## Publish port on host IP
+
+Initiate container named app-2 :
+
+    mount /root/app-2 directory on the host to the /usr/share/nginx/html directory within the container
+    utilize the nginx:alpine image
+    map 127.0.0.1:81 on the host with port 80 within the container
+
+Send get request to localhost:81 .
+
+Tip: 
+
+Use -d (detached) flag when running the container.
+
+Use -p or --publish flag to map ports.
+
+
+Solution:
+
+Initiate app-2 container:
+
+docker run -d -v /root/app-2:/usr/share/nginx/html -p 127.0.0.1:81:80 --name app-2 nginx:alpine
+
+
+Send get request to localhost:81 :
+
+curl localhost:81
+
+
+## Make a request from another host
+
+Connect via SSH to the hos tnamed **node01**.
+
+Issue GET requets  to both controlpane:80 and controlpane:81.
+The hostname 'controlpane' refers to the host where you've recently set up containers.
+
+Tip 1: 
+
+If you include the localhost IP address (127.0.0.1) with the publish flag, 
+only the Docker host can access the published container port.
+
+To ssh use "ssh node01" command.
+
+Tip 2:
+
+You should expect an error message "Failed to connect to controlplane port 81: Connection refused" 
+upon executing the "curl controlplane:81" command.
+
+Solution:
+
+Connect via SSH to the host named node01 :
+
+ssh node01
+
+
+Send get request to controlplane:80 :
+
+curl controlplane:80
+
+
+Send get request to controlplane:81 :
+
+curl controlplane:81
+
+# Updating containerized application
+
+## Containerize an application
+
+Build docker image named app/v1 using /root/Dockerfile .
+
+Start the container named app , it should:
+
+    use app/v1 image
+    map port 3000 on the host with port 3000 in the container
+    run in the background (use -d flag)
+
+Make a request to localhost:3000.
+
+Tip:
+
+Use docker build and docker run commands. 
+
+Use --help flag to see the help.
+
+Solution:
+
+Build app/v1 image:
+
+docker build -t app/v1 .
+
+
+Launch the container exposing port 3000:
+
+docker run -d -p 3000:3000 --name app app/v1 
+
+
+Make a request to localhost:3000:
+
+curl localhost:3000
+
+
+## Containerize an updated app
+
+Append line "<h2>Some updates for app/v2</h2>" to /root/index.html file.
+
+Build docker image app/v2 from /root/Dockerfile .
+
+Remove container app .
+
+Start the container named app , it should:
+
+    use app/v2 image
+    map port 3000 on the host with port 3000 in the container
+    run in the background (use -d flag)
+
+Make a request to localhost:3000
+
+TIP:
+Use >> to append text to the file.
+
+Use docker build and docker run commands.
+
+Use --help flag to see the help.
+
+Solution:
+
+Append line <h2>Some updates for app/v2</h2> to /root/index.html file:
+
+echo "<h2>Some updates for app/v2</h2>" >> /root/index.html
+
+
+Build app/v2 image:
+
+docker build -t app/v2 .
+
+
+Delete container app created from the image app/v1:
+
+docker rm -f app
+
+OR
+
+docker stop app && docker rm app
+
+
+Run the container with exposed port 3000.
+
+docker run -d -p 3000:3000 --name app app/v2 
+
+
+Make a request to localhost:3000:
+
+curl localhost:3000
+
+# Using Bind mounts
+
+Starting a container with a bind mount.
+
+## Start a container with a bind mount
+
+Initiate a container named sample-app :
+
+    utilize the nginx:alpine image
+    attach it to the /root/app-data directory on the host
+    mount this bind to the /usr/share/nginx/html directory within the container
+    ensure port 80 on the host is mapped to port 80 within the container
+
+Send get request to localhost:80 .
+
+List files in the /usr/share/nginx/html directory in the container.
+
+If the bind mount is empty, it won't be populated by the data from the container.
+And it will clear the directory inside the container.
+
+Tip 1: Use --mount or -v flag to mount volume.
+
+Use -d flag to run container in the detached mode.
+
+Use the 'curl' command to send a request to the localhost.
+
+Tip 2: 
+You will got 403 error as a reaponse to the get request to localhost:80.
+
+There won't be any files in the /usr/share/nginx/html directory.
+
+
+Solution: 
+
+Run the container with the mounted directory:
+
+docker run -d -p 80:80 --mount type=bind,src=/root/app-data,target=/usr/share/nginx/html --name sample-app nginx:alpine
+
+OR
+
+docker run -d -p 80:80 -v /root/app-data:/usr/share/nginx/html --name sample-app nginx:alpine
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+
+List files in the container's directory:
+
+docker exec sample-app sh -c "ls /usr/share/nginx/html"
+
+## Update data in the container
+
+Generate an index.html file within /usr/share/nginx/html containing "<h1>Hello from the updated App</h1>" .
+
+Send get request to localhost:80 .
+
+Remove sample-app container.
+
+Solution:
+
+
+Create index.html file:
+
+docker exec sample-app sh -c "echo '<h1>Hello from the updated App</h1>' > /usr/share/nginx/html/index.html"
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+
+Remove the sample-app container:
+
+docker rm -f sample-app
+
+OR
+
+docker stop sample-app && docker rm sample-app
+
+
+## Running another container
+
+Initiate a container named sample-app :
+
+    utilize the nginx:alpine image
+    attach it to the /root/app-data directory on the host
+    mount this bind to the /usr/share/nginx/html directory within the container
+    ensure port 80 on the host is mapped to port 80 within the container
+
+Send get request to localhost:80 .
+
+Solution:
+
+
+Run the container with the mounted directory:
+
+docker run -d -p 80:80 --mount type=bind,src=/root/app-data,target=/usr/share/nginx/html --name sample-app nginx:alpine
+
+OR
+
+docker run -d -p 80:80 -v /root/app-data:/usr/share/nginx/html --name sample-app nginx:alpine
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+## Change file in the bind mount
+
+Add line "Added from the host" to the /root/app-data/index.html file on the host.
+
+Send get request to localhost:80 .
+
+Solution:
+
+Add line to the /root/app-data/index.html file on the host:
+
+echo "Added from the host" >> /root/app-data/index.html
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+
+# Using enviroment variables:
+
+**Building and running a container with environment variables**
+
+## Build docker image using ENV key word
+
+Create a new file /root/Dockerfile to build a container image from. It should:
+
+    use nginx:alpine as base
+    define environment variable key1=value1
+
+Build the image and tag it as sample-image .
+
+Instantiate a container named sample-app .
+
+Confirm the presence of the environment variable key1=value1 within the container.
+
+Info:
+
+Dockerfile: List of commands from which an Image can be build.
+
+Image: Binary file which includes all data/requirements to be run as a Container.
+
+Container: Running instance of an Image.
+
+Use docker --help to see the list of commands.
+
+Tip: 
+
+Use ENV key word to define environment variables in Dockerfile.
+Use -d (detached) flag when running the container.
+
+Solution:
+
+Create /root/Dockerfile :
+
+cat <<EOF >> /root/Dockerfile
+FROM nginx:alpine
+ENV key1=value1
+EOF
+
+Build the image:
+
+docker build -t sample-image .
+
+
+Run the container:
+
+docker run -d --name sample-app sample-image
+
+
+Display the container's environment variables:
+
+docker exec sample-app env
+
+## Overwrite environment variable
+
+Launch a container named sample-app-2 using the existing image sample-image , introducing the environment variables key2=value2 and key1=new-value1 . Ensure the Dockerfile remains unchanged.
+
+List the environment variables within the instantiated sample-app-2 container.
+
+Info:
+
+Environment variables in Docker:
+https://docs.docker.com/develop/develop-images/instructions/#env.
+
+Tip: 
+
+Use -e flag when running the container.
+
+Solution:
+
+Run the image with new environment variables:
+
+docker run -d --name sample-app-2 -e key2=value2 -e key1=new-value1 sample-image
+
+
+Display the container's environment variables:
+
+docker exec sample-app-2 env
+
+# Using volume mounts
+
+**Run container with mounted volume**
+
+## Attach volume to the container
+
+Create docker volume named sample-volume .
+
+Initiate a container named sample-app :
+
+    utilize the nginx:alpine image
+    attach it to the volume sample-volume
+    mount this volume to the /usr/share/nginx/html directory within the container
+    ensure port 80 on the host is mapped to port 80 within the container
+
+Send get request to localhost:80 .
+
+Info: 
+
+If the volume is empty, volume is populated by data from container. 
+Otherwise, the data in the container is going to be replaced by the volume's data.
+
+Check the instructions on handling volumes by using "docker volume --help".
+
+Documentation - https://docs.docker.com/storage/volumes/#populate-a-volume-using-a-container.
+
+Use --mount or -v flag to mount volume.
+
+Use -d flag to run container in the detached mode.
+
+Use the 'curl' command to send a request to the localhost.
+
+Solution:
+
+Create volume:
+
+docker volume create sample-volume
+
+
+Run the container with the mounted directory:
+
+docker run -d -p 80:80 --mount type=volume,src=sample-volume,target=/usr/share/nginx/html --name sample-app nginx:alpine
+
+OR
+
+docker run -d -p 80:80 -v sample-volume:/usr/share/nginx/html --name sample-app nginx:alpine
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+## Update data in the container
+
+Rewrite /usr/share/nginx/html/index.html file with "<h1>Hello from the updated App</h1>" .
+
+Send get request to localhost:80 .
+
+Remove sample-app container.
+
+Info:
+
+Check the instructions on handling volumes by using "docker volume --help".
+
+Documentation - https://docs.docker.com/storage/volumes/#populate-a-volume-using-a-container.
+
+Tip:
+
+Use > to rewrite contents of the file.
+
+Use the 'curl' command to send a request to the localhost
+
+Solution:
+
+Rewrite index.html file:
+
+docker exec sample-app sh -c "echo '<h1>Hello from the updated App</h1>' > /usr/share/nginx/html/index.html"
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+
+Remove the sample-app container:
+
+docker rm -f sample-app
+
+Or
+
+docker stop sample-app && docker rm sample-app
+
+
+## Run Another container
+
+Initiate a container named sample-app :
+
+    utilize the nginx:alpine image
+    attach it to the volume sample-volume
+    mount this volume to the /usr/share/nginx/html directory within the container
+    ensure port 80 on the host is mapped to port 80 within the container
+
+Send get request to localhost:80 .
+
+Info:
+
+If the volume is empty, volume going to be populated by data from container.
+Otherwise, the data in the container is going to be replaced by volume's data.
+
+Check the instructions on handling volumes by using `docker volume --help` <span class='kc-markdown-code-copy'></span>.
+
+Documentation - https://docs.docker.com/storage/volumes/#populate-a-volume-using-a-container.
+
+Tip:
+
+Use flag -v or --mount when running the container - https://docs.docker.com/storage/volumes/#choose-the--v-or---mount-flag.
+
+Be cautious about where you attach the volume on the container's filesystem. 
+If the volume isn't empty, all the existing data will be overwritten by the data in the volume.
+
+Solution:
+
+Run the container with a mounted volume: (specifying type=volume isn't required, as it's the default behavior)
+
+docker run -d -p 80:80 --mount type=volume,src=sample-volume,target=/usr/share/nginx/html --name sample-app nginx:alpine
+
+OR
+
+docker run -d -p 80:80 -v sample-volume:/usr/share/nginx/html --name sample-app nginx:alpine
+
+
+Send get request to localhost:80 :
+
+curl localhost:80
+
+
+## Update data on the host system:
+
+Verify the directory location on the host where sample-volume is linked. Add the line "Added from the host" to the index.html file on the host.
+
+Send get request to localhost:80 .
+
+Info!:
+
+**Warning! Don't do this in production.**
+
+**Volumes are not designed to be edited on the host.** 
+**Use bind mounts for this instead.**
+
+Tip:
+
+Use "docker volume inspect" command to see detailed information about the volume.
+
+Use >> to append line to the file.
+
+Solution:
+
+
+Inspect sample-volume :
+
+docker volume inspect sample-volume
+
+
+Append line to the index.html on the host:
+
+echo "Added from the host" >> /var/lib/docker/volumes/sample-volume/_data/index.html
+
+
+Make a request to localhost:80 :
+
+curl localhost:80
+
+
+
+
