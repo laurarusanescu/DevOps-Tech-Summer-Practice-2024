@@ -1,13 +1,13 @@
-* -v 
+## -v 
     -> is concise and good for simple mounts, but less clear and flexible
     docker run -v /host/data:/container/data myimage
 
-* --mount 
+## --mount 
     -> is more complex but offers greater clarity and flexibility for complex scenarios
     docker run --mount type=bind,source=<host_path>,target=<container_path> ...
 
 
-    * Docker volumes
+## Docker volumes
 
     = mechanisms for persisting data used by Docker containers
     the file / directory is stored in a new directory within Doker's storage directory on the host machine
@@ -22,7 +22,7 @@
     - volumes on Docker Desktop have much higher performance than bind mounts from Mac and Windows hosts.
 
 
-* Bind Mounts
+## Bind Mounts
 
     a file/directory on the host machine is mounted into a container
     the file / directory is referenced by its absolute path on the host machine
@@ -43,3 +43,10 @@
     sh: This starts a shell session in the container.
     -c: This flag tells the shell to execute the command that follows in quotes.
     ls /usr/share/nginx/html: This lists the contents of the directory /usr/share/nginx/html within the container
+
+    When you’re actively working on an application it is inconvenient to have to stop the container, rebuild the image, and run a new version every time you make a change to your source code.
+
+    One way to streamline this process is to mount the source code directory on the local machine into the running container. This will allow any changes made to the files on the host to be immediately reflected in the container.
+
+    We do this using something called a bind mount.
+
