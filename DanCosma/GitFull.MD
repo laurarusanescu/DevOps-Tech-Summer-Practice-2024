@@ -749,3 +749,434 @@ git add . let's run
 git status
 
 Yep, we can confirm, neveringit file is never added to commit, except only one situation: when we forced it.
+
+## 12.GIT TAGS
+
+Tag-urile sunt foarte puternice cand sunt folosite corect.
+
+## Create a tag
+
+* cd work
+* git status
+* git adog
+
+We can do lightweight tags or annotated. Honestly, I do not like the first one. I prefer annotated tags as we can see some info there.
+
+ For lightweight tags git creates something similar to branch that doesn't change. In case of annotaded tag, git stores it as whole odject in database.
+
+ Checking if we have tags:
+
+ * git tags
+
+Make the tag:
+
+* **git tag -a v1.0 -m "version 1.0. initial state"**
+  
+  You can use what you wish for a tag. But good practice is to use v and number which describes the changes from previous tag. How to create proper tagging strategy - there is many documents about it.
+
+  ## Check the tags
+
+  * git tag
+  * git show v1.0
+
+## Moving tags and navigation
+
+Let's try with checking what we have and the we tag current HEAD.
+
+**git adog**
+
+As we can see, tag v1.0 is marker somewhere in the middle.
+
+Ok, we do the new tag now.
+
+git tag -a v2.0 -m "version 2.0. A lot of new features"
+
+git tag
+
+git adog 
+
+## Tag by commit
+
+We had to tag our state with v1.5 after the commit for testfile-06...
+
+No worries, we still can do it.
+
+git adog | grep 'testfile-06' | awk '{print $2}' | head -n1
+
+grep 'testfile-06 - this will select entries with message where this filename occurs (not the best way, but in our case it is more than enough).
+
+awk '{print $2}' - with awk we are 'cutting' the output and print only the third (counted from 0) element, where separator (default one) is a space.
+
+head -n1 - on the end we are printing ony the first element (if there is more records with the same name). git log shows commits by descending through date, so this works for us.
+
+#### Automation:
+
+Changing output of the command above into variable.
+
+commit2tag=$(git adog | grep 'testfile-06' | awk '{print $2}' | head -n1)
+
+To be sure, we confirm if variable contains proper value.
+
+cat $commit2tag
+
+Now we will use this variable for commit.
+
+git tag -a v1.5 -m "version 1.5. Some updates" $commit2tag
+
+git tag
+
+git adog
+
+We succesfully tagged commit from history.
+
+## Navigate through tags
+
+clear  && git tag
+
+let's jump to first tag
+
+git checkout v1.0
+
+Ok. We switched. Probably. Let's check.
+
+git adog
+
+Yes, HEAD is on the same commit as tag v1.0.
+
+But...
+
+Where we are on our branch?
+
+git branch
+
+Oh... We are detached from master. Makes sense, we jumped back into past.
+
+Ok. log gives us information where we are. Let's be sure.
+
+git tag
+
+Hm... Not very helpfull, right?
+
+To check what on what tag you are currently on, use
+
+git describe
+
+Or
+
+git describe --tags
+
+to be more exact.
+
+git describe will return info about current tag. If there is no tag created yet, git will throw an error. If we are somewhere in the middle:
+
+commitbetweentags=$(git adog | grep 'testfile-05' | awk '{print $2}' | head -n1)
+
+git checkout $commitbetweentags
+
+git adog
+
+git describe
+
+We see now the tag on which we already started to build our changes.
+
+## Deleting a tag
+
+Ok, let's go back to the Master branch (what means to the top of our work before the recent change - in our case).
+
+git checkout master
+
+And now we delete v1.0 tag.
+
+git tag -d v1.0
+
+git tag
+
+git adog
+
+Yep, tag is deleted.
+
+# 13. Merge Branches
+
+The power of version control is also the possibility to work on different versions of the code simultaneously. In order to achieve that, we have the branch functionality.
+
+
+BRANCHES = As Atlassians explains, branch represents an independent line of development. We create branches to independently and uninterruptly work on some functionality, which later is merged to the main line.
+
+cd merge
+
+The system prepared a few commits in the background. Let's see them.
+
+git adog
+
+Now we can check what branches we have and also on which branch we currently are.
+
+git branch
+
+Our current branch is pointed by asterisk (and color if enabled).
+
+Ok, we are ready to create and swith to just created branch. We are lazy, so let's do it with one line command.
+
+git checkout -b newbranch
+
+git checkout moves us between branches. When we add -b, a new branch is created.
+
+Are we on proper branch?
+
+git branch
+
+Yes, we are.
+
+By the way, when git branch -r is executed, we list branches from remote. In our case we cannot do it, as we didn't set the remote for our repo.
+
+Let's do some commits.
+
+touch branchfile
+
+echo "this was done on branch!" >> branchfile
+
+git add .
+
+git commit branchfile -m "first commit on branch"
+
+echo "added on branch" >> testfile-02
+
+git commit testfile-02 -m "second commit on branch"
+
+git adog
+
+We see the log is quite flat now. That's ok. In fact, we have this:
+
+git-merge-step1.png
+
+Right, let's make some changes on master and then come back to this branch.
+
+git checkout master
+
+Confirm the proper branch by
+
+git branch and check what we have in log
+
+clear && git adog . Please notice the difference between HEAD pointer when checked on branch or master.
+
+touch testfile-05
+
+echo "this was done on master!" >> testfile-05
+
+git add .
+
+git commit testfile-05 -m "next commit on master"
+
+echo "added on master" >> testfile-01
+
+git commit testfile-01 -m "another commit on master"
+
+git checkout newbranch
+
+echo "another change on branch, again" >> testfile-02
+
+git add .
+
+git commit testfile-02 -m "commit from branch"
+
+git adog
+
+Ok, let's go back to master.
+
+git checkout master
+
+clear && git adog
+
+This is what we have now:
+
+git-merge-step2.png
+
+Ok, now git log shows some trees, at least :) Why?
+
+Simple, there are more changes, done in different time on different branches. The files and content of them started do be different.
+
+The picture shows curent state.
+
+Now we can switch to master and merge changes.
+
+git checkout master
+
+git merge newbranch --no-edit
+
+clear && git adog
+
+And this is the final state. Merge created a new commit to reflect changes caused by the process.
+
+Final status is like on the picture below.
+
+git-merge-step3.png
+
+As we finished work on branch, we can delete it
+
+git branch -d newbranch && git branc
+
+## Conflicts
+
+During the work on two branches it is possible that the changes will be implemented to the same file.
+
+The system prepared the repo, let's see what we have in branch. One file was modified in master and in branch too.
+
+So, let's switch to new repo.
+
+cd ~/merge2
+
+git branch
+
+git adog
+
+git checkout master && git adog
+
+We are ready to merge.
+
+git merge newbranch
+
+Ouch.
+
+What happened?
+
+Well, testfile-02 was updated that way, that different changes are done in the same place.
+
+We need to fix the conflict.
+
+Let's take it easy now. We remove only these things which are pointing the conflict.
+
+cat testfile-02
+
+sed -i '8d' testfile-02 && sed -i '5d' testfile-02 && sed -i '3d' testfile-02 && cat testfile-02
+
+Ok.
+
+git status says, we need to confirm fixes by adding the file to stage again.
+
+git add testfile-02
+
+Now we are ready to finalize merge
+
+git commit -a -m "confirm merge"
+
+git adog - yes, this is what we expected
+
+and what we have in our problematic file?
+
+cat testfile-02
+
+git branch -d newbranch && git branch 
+
+## Better approach
+
+Better approach
+
+If you work on huge amount of changes, the good practice is to merge the master to your branch before merge to master.
+
+It doesn't help to solve conflicts, but conflict will be on your branch, not master. What is definitelly more confortable for everyone.
+
+Ok, we need to go to the new repo
+
+cd ~/merge3
+
+Ok, we are on the branch, let's do the merge.
+
+git branch
+
+git merge master --no-edit
+
+Yes, we have conflict, but master is still clean.
+
+sed -i '8d' testfile-02 && sed -i '6d' testfile-02 && sed -i '3d' testfile-02 && cat testfile-02
+
+Worth noticing, the center of the conflict (=======) lies in different place than in the example in conflicts lesson.
+
+Now, like last time, we need to stage and commit file.
+
+git status
+
+git add testfile-02
+
+git commit -a -m "merge master to newbranch"
+
+git adog
+
+Ok, we fixed problems, and we are ready to merge our changes on master.
+
+git checkout master
+
+git merge newbranch --no-edit
+
+git adog
+
+So, we completed our merge.
+
+git branch -d newbranch && git branch
+
+
+# 14. Git Rebase
+
+## Merge VS Rebase
+
+**Merge**: It is quite simple. We create branch, do changes here and there and then merge. Work history should show exactly this. Let's check.
+
+
+System creates two repos. One in merge directory, where all process was completed (final merge). Let's see how our history looks.
+
+cd merge
+
+git adog
+
+(do you remember our "a dog" config setting from git config module?)
+
+Pretty simple, and nothing new. So, how rebase works?
+
+**Rebase** 
+
+We are using rebase to make history more clean, clear and ordered. This clearly means, we play with history of commits. Not in the very aggresive way, but still, history is kind of corrupted. This is huge risk when a huge team is working on the same repository.
+
+It is imperative to understand the rebase, especially the risks behind.
+
+We are using rebase to make history more clean, clear and ordered. This clearly means, we play with history of commits. Not in the very aggresive way, but still, history is kind of corrupted. This is huge risk when a huge team is working on the same repository.
+
+Also rebase may lead to many conflicts.
+
+Ok, it is time to explain the steps.
+
+    1 step is similar to previous activity - merge. We have master and branch.
+    Step2. When we perform the rebase operation, parent commit of the branch (the one from where we created branch) is moved to the HEAD of master, all differences between master and branch are merger and all commits on the branch are "copied/moved" (with all respective changes from master branch).
+    Step 3. The last thing is to do merge on master branch in order to move HEAD of master to the proper place.
+
+Let's see it in the example.
+
+System prepared second repository in rebase directory, and the state is exactly the same like in the merge repo, but without final merge.
+
+cd ../rebase
+
+git adog
+
+We see that branches are not merged.
+
+Let's switch to the second-branch (in case if we are not there, but we should) and do the rebase with master.
+
+git checkout second-branch
+
+git rebase master
+
+git adog
+
+Right now we can see two things
+
+    history looks totally different. Is 'flat' now and shuffled.
+    HEAD of master is in the wrong position.
+
+If we leave it that way, believe, we generate a chaos, mess, and comments of hatred ;P So, let's switch to master and then move the marker by merge the branch to master.
+
+git checkout master
+
+git merge second-branch
+
+git adog
+
+Now we have HEAD in proper place and the history which, in fact, does not represent the past work order, but is more readable.
+
+Pleace notice, the merge was created in 'fast-forward' mode. It means that no additional commit was created, but the HEAD marker was moved.
